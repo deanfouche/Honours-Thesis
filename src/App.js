@@ -10,10 +10,19 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-		<Board />
+		<div className="toolbox" >
+			<div className="funcSym" id="originalFunc" draggable="true" onDragStart={(event) => {drag(event)}}>
+				<div className="smallSquare" onDrop={(event) => {drop(event)}} onDragOver={(event) => {allowDrop(event)}}></div>
+				<img className="dragObj" id="originalFuncImg" alt="Test draggable" src="./test_img.png" />
+				<div className="smallSquare" onDrop={(event) => {drop(event)}} onDragOver={(event) => {allowDrop(event)}}></div>
+			</div>
+			<img className="dragObj" id="original2" alt="Test draggable" src="./test_img.jpg" draggable="true" onDragStart={(event) => {drag(event)}} />
+		</div>
+        <div className="container" onDragStart = {(event) => {drag(event)}} onDrop={(event) => {drop(event)}} onDragOver={(event) => {allowDrop(event)}}>
+		  
+		</div>
+
+		
       </div>
     );
   }
@@ -24,7 +33,7 @@ class Board extends Component {
 		super(props);
 		this.state = {
 		  input: props.value,
-		  squares: Array(9).fill(null),
+		  squares: Array(48).fill(null),
 		};
 	}
 	
@@ -68,5 +77,36 @@ function Square(props) {
 	);
 }
 
+
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+	if(data.includes("Img")) {
+		data = document.getElementById(data).parentNode.id;
+	}
+	console.log(data);
+	if(data.includes("original"))
+	{
+		var nodeCopy = document.getElementById(data).cloneNode(true);
+		nodeCopy.id = "drag" + counter;
+		if(nodeCopy.hasChildNodes()) nodeCopy.childNodes[1].id = "dragImg" + counter;
+		counter++;
+		ev.target.appendChild(nodeCopy);
+	} else {
+		
+		ev.target.appendChild(document.getElementById(data));
+	}
+}
+
+var counter = 0;
 
 export default App;
