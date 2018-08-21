@@ -27,6 +27,61 @@
   to { transform: rotate(360deg); }
 }
 
+.container {
+  margin: 10px;
+  width: 40.5em;
+  height: 30em;
+  border: 1px solid;
+  border-color: black;
+  float: left;
+
+  /* display: grid; */
+  /* grid-template-columns: fit-content(300px) fit-content(300px) 1fr; */
+  /* grid-gap: 5px; */
+  /* box-sizing: border-box; */
+  /* background-color: #8cffa0; */
+  /* padding: 10px; */
+}
+
+.toolbox {
+  margin: 10px;
+  width: 25em;
+  height: 30em;
+  border: 1px solid;
+  border-color: black;
+  float: left;
+}
+
+.gridBox {
+  width: 10em;
+  height: 10em;
+  border: 1px solid;
+  border-color: black;
+  clear: both;
+  float: left;
+}
+
+.dragObj {
+  padding: 1px;
+  float: left;
+  width: 3em;
+  height: 3em;
+}
+
+.funcSym {
+  #border: 1px solid #999;
+  float: left;
+  height: 4em;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 7.4em;
+  z-index: 999;
+  resize: both;
+  overflow: auto;
+}
+
 ol, ul {
   padding-left: 30px;
 }
@@ -45,15 +100,29 @@ ol, ul {
   background: #fff;
   border: 1px solid #999;
   float: left;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 34px;
-  height: 34px;
+  height: 6em;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
   text-align: center;
-  width: 34px;
+  width: 8em;
+  resize: both;
+  overflow: auto;
+}
+
+.smallSquare {
+  background: #fff;
+  border: 1px solid #999;
+  float: left;
+  height: 2.5em;
+  #margin-right: -1px;
+  #margin-top: -1px;
+  margin-bottom: -1px;
+  padding: 0;
+  text-align: center;
+  width: 2em;
+  resize: both;
+  overflow: auto;
 }
 
 .square:focus {
