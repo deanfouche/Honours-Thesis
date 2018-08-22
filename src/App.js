@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+const interact = require("interactjs");
+
 class App extends Component {
   render() {
     return (
@@ -11,15 +13,11 @@ class App extends Component {
           <h1 className="App-title">Welcome to React</h1>
         </header>
 		<div className="toolbox" >
-			<div className="funcSym" id="originalFunc" draggable="true" onDragStart={(event) => {drag(event)}}>
-				<div className="smallSquare" onDrop={(event) => {drop(event)}} onDragOver={(event) => {allowDrop(event)}}></div>
-				<img className="dragObj" id="originalFuncImg" alt="Test draggable" src="./test_img.png" />
-				<div className="smallSquare" onDrop={(event) => {drop(event)}} onDragOver={(event) => {allowDrop(event)}}></div>
-			</div>
-			<img className="dragObj" id="original2" alt="Test draggable" src="./test_img.jpg" draggable="true" onDragStart={(event) => {drag(event)}} />
+			<img className="fBody" id="funcBody" alt="Test draggable" src="./functionBody.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
+			<img className="fExp" id="funcExp" alt="Test draggable" src="./expression.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
+			<img className="fNExp" id="funcNExp" alt="Test draggable" src="./nameExpression.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
 		</div>
         <div className="container" onDragStart = {(event) => {drag(event)}} onDrop={(event) => {drop(event)}} onDragOver={(event) => {allowDrop(event)}}>
-		  
 		</div>
 
 		
@@ -93,11 +91,11 @@ function drop(ev) {
 	if(data.includes("Img")) {
 		data = document.getElementById(data).parentNode.id;
 	}
-	console.log(data);
-	if(data.includes("original"))
+	if(data.includes("func"))
 	{
 		var nodeCopy = document.getElementById(data).cloneNode(true);
-		nodeCopy.id = "drag" + counter;
+		var copyID = "drag" + counter;
+		nodeCopy.id = copyID;
 		if(nodeCopy.hasChildNodes()) nodeCopy.childNodes[1].id = "dragImg" + counter;
 		counter++;
 		ev.target.appendChild(nodeCopy);
@@ -105,8 +103,36 @@ function drop(ev) {
 		
 		ev.target.appendChild(document.getElementById(data));
 	}
+	var element = document.getElementById(copyID),
+		x = 0, y = 0;
+	
+	interact(element)
+	  .draggable({
+		snap: {
+		  targets: [
+			interact.createSnapGrid({ x: 2, y: 2 })
+		  ],
+		  range: Infinity,
+		  relativePoints: [ { x: 0, y: 0 } ]
+		},
+		inertia: true,
+		restrict: {
+		  restriction: element.parentNode,
+		  elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
+		  endOnly: true
+		}
+	  })
+	  .on('dragmove', function (event) {
+		x += event.dx;
+		y += event.dy;
+
+		event.target.style.webkitTransform =
+		event.target.style.transform =
+			'translate(' + x + 'px, ' + y + 'px)';
+	  })
 }
 
 var counter = 0;
 
 export default App;
+
