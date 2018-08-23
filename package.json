@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@shopify/draggable": "^1.0.0-beta.7",
+    "interactjs": "^1.3.4",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-scripts": "1.1.4"
