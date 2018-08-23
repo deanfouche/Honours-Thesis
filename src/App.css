@@ -27,23 +27,16 @@
   to { transform: rotate(360deg); }
 }
 
-#grid-snap {
-  width: 40%;
-  background-color: #29e;
-  color: #fff;
-  font-size: 1.2em;
-  border-radius: 4px;
-  padding: 2%;
-  margin: 5%;
-}
-
 .container {
   margin: 10px;
-  width: 40.5em;
+  width: 55%;
+  min-width: 25em;
   height: 30em;
   border: 1px solid;
   border-color: black;
   float: left;
+  overflow-y: scroll;
+  overflow-x: hidden;
 
   /* display: grid; */
   /* grid-template-columns: fit-content(300px) fit-content(300px) 1fr; */
@@ -55,7 +48,8 @@
 
 .toolbox {
   margin: 10px;
-  width: 25em;
+  width: 15%;
+  min-width: 10em;
   height: 30em;
   border: 1px solid;
   border-color: black;
@@ -72,13 +66,13 @@
 }
 
 .fBody {
-  padding: 1px;
+  padding: 10px;
   float: left;
   width: 8em;
 }
 
 .fExp,.fNExp {
-  padding: 1px;
+  padding: 10px;
   float: left;
   width: 5em;
 }
