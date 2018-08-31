@@ -66,6 +66,20 @@ class Context extends Component {
 		});
 	}
 	
+	//Make new diagram components interact-able when added to context
+	componentDidUpdate() {
+		{this.state.functionList.map(func => {
+			var x = document.getElementById(func.id).style;
+			var i;
+			var needInteract = true;
+			for (i = 0; i < x.length; i++) {
+				if(x[i] == "transform") needInteract = false;
+			}
+			if(needInteract) {
+				newInteract(func.id);
+			}
+		})}
+	}
 	
 	render() {
 		var functionList = this.state.functionList;
@@ -80,7 +94,7 @@ class Context extends Component {
 		} else {
 			return (
 				<div>
-					<div className="container" id="context" onDragStart = {(event) => {drag(event)}} onDrop={(event) => {this.drop(event)}} onDragOver={(event) => {allowDrop(event)}}>
+					<div className="container" id="context" onDrop={(event) => {this.drop(event)}} onDragOver={(event) => {allowDrop(event)}} style={{position:"relative"}}>
 						{this.state.functionList.map(func => {
 							return ( <FuncComp key={func.id} type={func.type} id={func.id}/>);
 						})}
@@ -89,21 +103,38 @@ class Context extends Component {
 			);
 		}
 	}
+	//298-227 = 71 & 152-114 = 38
+	//300-227 = 73 & 285-227 = 38
 	
+	//132-60 = 72 & 240-205 = 35
+	//569-497 = 72 & 390-353 = 37
+	
+	
+	//701-654 = & 166-138 = 
 	drop(ev) {
 		ev.preventDefault();
 		var data = ev.dataTransfer.getData("text");
-		if(data.includes("Img")) {
-			data = document.getElementById(data).parentNode.id;
-		}
+		// if(data.includes("Img")) {
+			// data = document.getElementById(data).parentNode.id;
+		// }
 		if(data.includes("func"))
 		{
-			var nodeCopy = document.getElementById(data).cloneNode(true);
+			//var nodeCopy = document.getElementById(data).cloneNode(true);
 			copyID = "drag" + counter;
-			nodeCopy.id = copyID;
-			if(nodeCopy.hasChildNodes()) nodeCopy.childNodes[1].id = "dragImg" + counter;
+			//nodeCopy.id = copyID;
+			//if(nodeCopy.hasChildNodes()) nodeCopy.childNodes[1].id = "dragImg" + counter;
 			counter++;
-			
+			//var xPos = nodeCopy.offsetLeft;
+			//var yPos = nodeCopy.offsetTop;
+			var offLeft = document.getElementById("context").offsetLeft;
+			var offTop = document.getElementById("context").offsetTop;
+			var x = ev.clientX - offLeft;     // Get the horizontal coordinate
+			var y = ev.clientY - offTop;     // Get the vertical coordinate
+			// console.log(xPos);
+			// console.log(yPos);
+			console.log("Left =" + offLeft + ", Top =" + offTop );
+			console.log("X =" + x + ", Y =" + y );
+			//ev.target.appendChild(nodeCopy);
 			switch (data) {
 				case "funcBody":
 					this.appendData(funcBody, copyID);
@@ -114,6 +145,9 @@ class Context extends Component {
 				case "funcNExp":
 					this.appendData(funcNExp, copyID);
 					break;
+				default:
+					console.log("Invalid object");
+					break;
 			}
 		}
 		
@@ -122,68 +156,6 @@ class Context extends Component {
 	}
 }
 
-
-
-// class Employee extends React.Component {
-   // state = {
-      // employeeList: [{name: 'user-1', age: '22', company:'abc', url: "https://avatars.githubusercontent.com/u/k8297" }]
-   // }
-   // appendData = () => {
-        // const newData = {name: 's', age: '21', company:'xyz', url: "https://avatars.githubusercontent.com/u/k8297"}
-        // this.setState(prevState => ({employeeList: [...prevState.employeeList, newData]}))
-   // }
-   // render() {
-       // <div>
-           // {this.state.employeeList.map(employee => {
-                // return (
-                    // <Card key={employee.name} name={employee.name} company={employee.company} url={employee.url}/>
-                // )
-           // })}
-           // <button onClick={this.appendData}>Append</button>
-       // </div>
-   // }
-// }
-
-class Board extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-		  input: props.value,
-		  squares: Array(48).fill(null),
-		};
-	}
-	
-	render() {
-		return (
-			<div>
-				<div className="board-row">
-				  {this.renderSquare(0)}
-				  {this.renderSquare(1)}
-				  {this.renderSquare(2)}
-				</div>
-				<div className="board-row">
-				  {this.renderSquare(3)}
-				  {this.renderSquare(4)}
-				  {this.renderSquare(5)}
-				</div>
-				<div className="board-row">
-				  {this.renderSquare(6)}
-				  {this.renderSquare(7)}
-				  {this.renderSquare(8)}
-				</div>
-			</div>
-		);
-	}
-	
-	renderSquare(i) {
-		return (
-		  <Square
-			value={this.state.squares[i]}
-			onClick={() => this.handleClick(i)}
-		  />
-		);
-	}
-}
 
 class functionComponent extends Component {
 	
@@ -210,7 +182,7 @@ function newInteract(id) {
 	  .draggable({
 		snap: {
 		  targets: [
-			interact.createSnapGrid({ x: 2, y: 2 })
+			interact.createSnapGrid({ x: 1, y: 1 })
 		  ],
 		  range: Infinity,
 		  relativePoints: [ { x: 0, y: 0 } ]
@@ -242,7 +214,7 @@ function FuncComp(props) {
 				id={props.id} alt="Test draggable" 
 				src="./functionBody.png" 
 				draggable="true" 
-				onClick={() => newInteract(tempID)} 
+				style={{position:"absolute", top:0, left:0,}}
 				onDragStart={(event) => {drag(event)}}/>);
 		case funcExp:
 			return (<img 
@@ -252,7 +224,7 @@ function FuncComp(props) {
 				alt="Test draggable" 
 				src="./expression.png" 
 				draggable="true" 
-				onClick={() => newInteract(tempID)}
+				style={{position:"absolute", top:0, left:0,}}
 				onDragStart={(event) => {drag(event)}}/>);
 		case funcNExp:
 			return (<img 
@@ -261,8 +233,10 @@ function FuncComp(props) {
 				id={props.id} alt="Test draggable" 
 				src="./nameExpression.png" 
 				draggable="true" 
-				onClick={() => newInteract(tempID)}
+				style={{position:"absolute", top:0, left:0,}}
 				onDragStart={(event) => {drag(event)}}/>);
+		default:
+			break;
 	}
 	
 }
@@ -281,10 +255,119 @@ function allowDrop(ev) {
     ev.preventDefault();
 }
 
+//Copy id of object being dragged
 function drag(ev) {
     ev.dataTransfer.setData("text", ev.target.id);
 }
 
 
 export default App;
+
+// function drop(ev) {
+    // ev.preventDefault();
+    // var data = ev.dataTransfer.getData("text");
+	// if(data.includes("Img")) {
+		// data = document.getElementById(data).parentNode.id;
+	// }
+	// if(data.includes("func"))
+	// {
+		// var nodeCopy = document.getElementById(data).cloneNode(true);
+		// var copyID = "drag" + counter;
+		// nodeCopy.id = copyID;
+		// if(nodeCopy.hasChildNodes()) nodeCopy.childNodes[1].id = "dragImg" + counter;
+		// counter++;
+		// ev.target.appendChild(nodeCopy);
+	// } else {
+		
+		// ev.target.appendChild(document.getElementById(data));
+	// }
+	// var element = document.getElementById(copyID),
+		// x = 0, y = 0;
+	
+	// interact(element)
+	  // .draggable({
+		// snap: {
+		  // targets: [
+			// interact.createSnapGrid({ x: 2, y: 2 })
+		  // ],
+		  // range: Infinity,
+		  // relativePoints: [ { x: 0, y: 0 } ]
+		// },
+		// inertia: true,
+		// restrict: {
+		  // restriction: element.parentNode,
+		  // elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
+		  // endOnly: true
+		// }
+	  // })
+	  // .on('dragmove', function (event) {
+		// x += event.dx;
+		// y += event.dy;
+
+		// event.target.style.webkitTransform =
+		// event.target.style.transform =
+			// 'translate(' + x + 'px, ' + y + 'px)';
+	  // })
+// }
+
+// class Employee extends React.Component {
+   // state = {
+      // employeeList: [{name: 'user-1', age: '22', company:'abc', url: "https://avatars.githubusercontent.com/u/k8297" }]
+   // }
+   // appendData = () => {
+        // const newData = {name: 's', age: '21', company:'xyz', url: "https://avatars.githubusercontent.com/u/k8297"}
+        // this.setState(prevState => ({employeeList: [...prevState.employeeList, newData]}))
+   // }
+   // render() {
+       // <div>
+           // {this.state.employeeList.map(employee => {
+                // return (
+                    // <Card key={employee.name} name={employee.name} company={employee.company} url={employee.url}/>
+                // )
+           // })}
+           // <button onClick={this.appendData}>Append</button>
+       // </div>
+   // }
+// }
+
+// class Board extends Component {
+	// constructor(props) {
+		// super(props);
+		// this.state = {
+		  // input: props.value,
+		  // squares: Array(48).fill(null),
+		// };
+	// }
+	
+	// render() {
+		// return (
+			// <div>
+				// <div className="board-row">
+				  // {this.renderSquare(0)}
+				  // {this.renderSquare(1)}
+				  // {this.renderSquare(2)}
+				// </div>
+				// <div className="board-row">
+				  // {this.renderSquare(3)}
+				  // {this.renderSquare(4)}
+				  // {this.renderSquare(5)}
+				// </div>
+				// <div className="board-row">
+				  // {this.renderSquare(6)}
+				  // {this.renderSquare(7)}
+				  // {this.renderSquare(8)}
+				// </div>
+			// </div>
+		// );
+	// }
+	
+	// renderSquare(i) {
+		// return (
+		  // <Square
+			// value={this.state.squares[i]}
+			// onClick={() => this.handleClick(i)}
+		  // />
+		// );
+	// }
+// }
 
