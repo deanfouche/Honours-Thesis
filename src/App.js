@@ -40,6 +40,7 @@ class Toolbox extends Component {
 		return (
 			<div className="toolbox" >
 				<img className="fBody" id="funcBody" alt="Test draggable" src="./functionBody.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
+				<img className="rfBody" id="funcRec" alt="Test draggable" src="./recFunctionBody.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
 				<img className="fExp" id="funcExp" alt="Test draggable" src="./expression.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
 				<img className="fExp" id="funcNExp" alt="Test draggable" src="./nameExpression.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
 			</div>
@@ -78,7 +79,7 @@ class Context extends Component {
 	
 	render() {
 		var functionList = this.state.functionList;
-		if(functionList.length == 0) {
+		if(functionList.length === 0) {
 			return (
 				<div>
 					<div className="container" id="context" onDragStart = {(event) => {drag(event)}} onDrop={(event) => {this.drop(event)}} onDragOver={(event) => {allowDrop(event)}}>
@@ -113,24 +114,36 @@ class Context extends Component {
 			
 			// console.log("Left =" + offLeft + ", Top =" + offTop );
 			// console.log("X =" + x + ", Y =" + y );
-			
+			var elem;
 			switch (data) {
 				case "funcBody":
-					var elem = document.getElementById("funcBody");
-					x -= elem.offsetWidth/2;
-					y -= elem.offsetHeight/2;
+					elem = document.getElementById("funcBody");
+					console.log(elem.offsetWidth + " " + elem.offsetHeight);
+					x = Math.round((x-elem.offsetWidth/2) / 10) * 10;
+					y = Math.round((y-elem.offsetHeight/2) / 10) * 10;
+					console.log(x + " " + y);
+					// x -= elem.offsetWidth/2;
+					// y -= elem.offsetHeight/2;
 					this.appendData(funcBody, copyID, x, y);
 					break;
+				case "funcRec":
+					elem = document.getElementById("funcRec");
+					console.log(elem.offsetWidth + " " + elem.offsetHeight);
+					x = Math.round((x-elem.offsetWidth/2) / 10) * 10;
+					y = Math.round((y-elem.offsetHeight/2) / 10) * 10;
+					console.log(x + " " + y);
+					this.appendData(funcRec, copyID, x, y);
+					break;
 				case "funcExp":
-					var elem = document.getElementById("funcExp");
-					x -= elem.offsetWidth/2;
-					y -= elem.offsetHeight/2;
+					elem = document.getElementById("funcExp");
+					x = Math.round((x-elem.offsetWidth/2) / 10) * 10;
+					y = Math.round((y-elem.offsetHeight/2) / 10) * 10;
 					this.appendData(funcExp, copyID, x, y);
 					break;
 				case "funcNExp":
-					var elem = document.getElementById("funcNExp");
-					x -= elem.offsetWidth/2;
-					y -= elem.offsetHeight/2;
+					elem = document.getElementById("funcNExp");
+					x = Math.round((x-elem.offsetWidth/2) / 10) * 10;
+					y = Math.round((y-elem.offsetHeight/2) / 10) * 10;
 					this.appendData(funcNExp, copyID, x, y);
 					break;
 				default:
@@ -142,16 +155,24 @@ class Context extends Component {
 	
 	newInteract(id) {
 		// setting initial x & y coordinates to dropped location
-		var index = this.state.functionList.findIndex(x => x.id==id);
+		var index = this.state.functionList.findIndex(x => x.id===id);
 		var element = document.getElementById(id),
 				x = this.state.functionList[index].x, y = this.state.functionList[index].y;
+		
+		var x1;
+		var y2;
 		
 		//setting up element as interact-able		
 		interact(element)
 		  .draggable({
 			snap: {
 			  targets: [
-				interact.createSnapGrid({ x: 1, y: 1 })
+				interact.createSnapGrid({ x: 10, y: 10 }),
+				function (x, y) {
+				  return { x: x,
+						   y: (75 + 50 * Math.sin(x * 0.04)),
+						   range: 40 };
+				}
 			  ],
 			  range: Infinity,
 			  relativePoints: [ { x: 0, y: 0 } ]
@@ -174,56 +195,7 @@ class Context extends Component {
 	}
 }
 
-
-class functionComponent extends Component {
-	
-	constructor(props) {
-		super(props);
-		this.state = {
-		  type: null,
-		  id: null,
-		  
-		};
-	}
-	
-	render() {
-		return (<div></div>)
-	}
-	
-}
-
-// function newInteract(id) {
-	// var element = document.getElementById(id),
-			// x = 0, y = 0;
-		
-	// interact(element)
-	  // .draggable({
-		// snap: {
-		  // targets: [
-			// interact.createSnapGrid({ x: 1, y: 1 })
-		  // ],
-		  // range: Infinity,
-		  // relativePoints: [ { x: 0, y: 0 } ]
-		// },
-		// inertia: false,
-		// restrict: {
-		  // restriction: element.parentNode,
-		  // elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
-		  // endOnly: true
-		// }
-	  // })
-	  // .on('dragmove', function (event) {
-		// x += event.dx;
-		// y += event.dy;
-
-		// event.target.style.webkitTransform =
-		// event.target.style.transform =
-			// 'translate(' + x + 'px, ' + y + 'px)';
-	  // })
-// }
-
 function FuncComp(props) {
-	var tempID = props.id;
 	switch(props.type) {
 		case funcBody:
 			return (<img 
@@ -231,6 +203,15 @@ function FuncComp(props) {
 				className="fBody" 
 				id={props.id} alt="Test draggable" 
 				src="./functionBody.png" 
+				draggable="true" 
+				style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}
+				onDragStart={(event) => {drag(event)}}/>);
+		case funcRec:
+			return (<img 
+				key={props.id} 
+				className="fBody" 
+				id={props.id} alt="Test draggable" 
+				src="./recFunctionBody.png" 
 				draggable="true" 
 				style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}
 				onDragStart={(event) => {drag(event)}}/>);
@@ -258,15 +239,6 @@ function FuncComp(props) {
 	}
 	
 }
-	
-function Square(props) {
-	return (
-		<button className="square" onClick={props.onClick}>
-		  {props.value}
-		</button>
-	);
-}
-
 
 
 function allowDrop(ev) {
@@ -280,6 +252,31 @@ function drag(ev) {
 
 
 export default App;
+
+// class functionComponent extends Component {
+	
+	// constructor(props) {
+		// super(props);
+		// this.state = {
+		  // type: null,
+		  // id: null,
+		  
+		// };
+	// }
+	
+	// render() {
+		// return (<div></div>)
+	// }
+	
+// }
+
+// function Square(props) {
+	// return (
+		// <button className="square" onClick={props.onClick}>
+		  // {props.value}
+		// </button>
+	// );
+// }
 
 // function drop(ev) {
     // ev.preventDefault();
