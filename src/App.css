@@ -28,7 +28,7 @@
 }
 
 .container {
-  margin: 10px;
+  margin: 9px;
   width: 55%;
   min-width: 25em;
   height: 30em;
@@ -47,9 +47,9 @@
 }
 
 .toolbox {
+  margin-top: 9px;
   margin: 10px;
-  width: 15%;
-  min-width: 10em;
+  width: 168px;
   height: 30em;
   border: 1px solid;
   border-color: black;
@@ -65,16 +65,20 @@
   float: left;
 }
 
-.fBody {
-  padding: 10px;
+#funcBody, #funcExp, #funcNExp, #funcRec {
+	padding: 10px;
+}
+
+.fBody, .rfBody {
   float: left;
-  width: 8em;
+  width: 140px;
+  height: 70px;
 }
 
 .fExp,.fNExp {
-  padding: 10px;
   float: left;
-  width: 5em;
+  width: 80px;
+  height: 40px;
 }
 
 .funcSym {
