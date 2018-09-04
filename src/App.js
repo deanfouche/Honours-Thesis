@@ -20,9 +20,10 @@ class App extends Component {
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
+		  <button id="generateButton">Generate Code</button>
         </header>
 		<Toolbox />
-		<Context />
+		<Context ref={(context) => {window.context = context}}/>
       </div>
     );
   }
@@ -54,6 +55,7 @@ class Context extends Component {
 		this.state = {
 		  input: props.value,
 		  functionList: [],
+		  completeFuncList: [],
 		};
 	}
 	
@@ -118,20 +120,20 @@ class Context extends Component {
 			switch (data) {
 				case "funcBody":
 					elem = document.getElementById("funcBody");
-					console.log(elem.offsetWidth + " " + elem.offsetHeight);
+					// console.log(elem.offsetWidth + " " + elem.offsetHeight);
 					x = Math.round((x-elem.offsetWidth/2) / 10) * 10;
 					y = Math.round((y-elem.offsetHeight/2) / 10) * 10;
-					console.log(x + " " + y);
+					// console.log(x + " " + y);
 					// x -= elem.offsetWidth/2;
 					// y -= elem.offsetHeight/2;
 					this.appendData(funcBody, copyID, x, y);
 					break;
 				case "funcRec":
 					elem = document.getElementById("funcRec");
-					console.log(elem.offsetWidth + " " + elem.offsetHeight);
+					// console.log(elem.offsetWidth + " " + elem.offsetHeight);
 					x = Math.round((x-elem.offsetWidth/2) / 10) * 10;
 					y = Math.round((y-elem.offsetHeight/2) / 10) * 10;
-					console.log(x + " " + y);
+					// console.log(x + " " + y);
 					this.appendData(funcRec, copyID, x, y);
 					break;
 				case "funcExp":
@@ -187,7 +189,12 @@ class Context extends Component {
 		  .on('dragmove', function (event) {
 			x += event.dx;
 			y += event.dy;
-
+			
+			var fList = window.context.state.functionList;
+			var tempInd = fList.findIndex(x => x.id === event.target.id);
+			fList[tempInd].x = x;
+			fList[tempInd].y = y;
+			
 			event.target.style.webkitTransform =
 			event.target.style.transform =
 				'translate(' + x + 'px, ' + y + 'px)';
@@ -240,6 +247,68 @@ function FuncComp(props) {
 	
 }
 
+window.onload = function(){
+	const generateBtn = document.getElementById("generateButton");
+	generateBtn.addEventListener("click", event => {
+		var fList = window.context.state.functionList;
+		if(fList.length > 0) {
+			var fullFunc, inComp, outComp, index1, index2, index3;
+			{fList.map(func => {
+				switch (func.type) {
+					case funcBody:
+						console.log(func.id);
+						fullFunc = true;
+						index1 = fList.findIndex(func2 => func2.x === (func.x-40) && func2.y === (func.y+70));
+						index2 = fList.findIndex(func2 => func2.x === (func.x+100) && func2.y === (func.y+70));
+						index3 = fList.findIndex(func2 => func2.x === (func.x+70) && func2.y === (func.y+70));
+						if(index1 === (-1)) {
+							fullFunc = false;
+						} else {
+							console.log("Input = " + fList[index1].id);
+						}
+						if(index2 === (-1) && index3 === (-1)) {
+							fullFunc = false;
+						} else {
+							if(index2 > 0 && index3 > 0) {
+								fullFunc = false;
+							} else {
+								if(index2 > 0) console.log("Normal output = " + fList[index2].id);
+								if(index3 > 0) console.log("Function output = " + fList[index3].id);
+							}
+						}
+						break;
+					case funcRec:
+						console.log(func.id);
+						fullFunc = true;
+						index1 = fList.findIndex(func2 => func2.x === (func.x-40) && func2.y === (func.y+70));
+						index2 = fList.findIndex(func2 => func2.x === (func.x+100) && func2.y === (func.y+70));
+						index3 = fList.findIndex(func2 => func2.x === (func.x+70) && func2.y === (func.y+70));
+						if(index1 === (-1)) {
+							fullFunc = false;
+						} else {
+							console.log("Input = " + fList[index1].id);
+						}
+						if(index2 === (-1) && index3 === (-1)) {
+							fullFunc = false;
+						} else {
+							if(index2 > 0 && index3 > 0) {
+								fullFunc = false;
+							} else {
+								if(index2 > 0) console.log("Normal output = " + fList[index2].id);
+								if(index3 > 0) console.log("Function output = " + fList[index3].id);
+							}
+						}
+						break;
+					default:
+						break;
+				}
+				fullFunc = true;
+				
+				//console.log(func);
+			})}
+		}
+	});
+}
 
 function allowDrop(ev) {
     ev.preventDefault();
