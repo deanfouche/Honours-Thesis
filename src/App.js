@@ -14,6 +14,7 @@ const funcBody = 0,
 var counter = 0;
 var currentVar = 0;
 var copyID = "";
+var toggleFuncCode;
 
 class App extends Component {
   render() {
@@ -64,7 +65,7 @@ class Context extends Component {
 	appendData(newType, newID, X, Y) {
 		var functionList = this.state.functionList;
 		
-        const newData = {type: newType, id: newID, x: X, y: Y, needInteract: true, input: {}, output: {}, full: false, hasParent: false};
+        const newData = {type: newType, id: newID, x: X, y: Y, needInteract: true, input: {}, output: {}, full: false, hasParent: false, name: ""};
 		
 		this.setState({
 			functionList: functionList.concat([newData]),
@@ -76,6 +77,8 @@ class Context extends Component {
 		{this.state.functionList.map(func => {
 			if(func.needInteract) {
 				this.newInteract(func.id);
+				var elem = document.getElementById(func.id);
+				elem.addEventListener('dblclick', toggleFuncCode);
 				func.needInteract = false;
 			}
 		})}
@@ -364,18 +367,32 @@ function genFunc(funcCode, index, tabCount) {
 	var fList = window.context.state.functionList;
 	var component = fList[index];
 	if(!component.full) return "not valid";
-	var funcName = varNames[currentVar];
-	var inputName = varNames[++currentVar];
-	if(component.type === funcBody) {
-		funcCode = funcCode + "let " + funcName + " " + inputName + " =<br/>";
-	} else if(component.type === funcRec) {
-		funcCode = funcCode + "let rec " + funcName + " " + inputName + " =<br/>";
-	}
+	var inputName;
+	if(component.input.name === "") {
+		inputName = varNames[currentVar];
+	} else inputName = component.input.name;
 	
+	if(component.name === "") {
+		if(component.type === funcBody) {;
+			funcCode = funcCode + "fun " + inputName + " =<br/>";
+		} else if(component.type === funcRec) {
+			var funcName = varNames[++currentVar];
+			funcCode = funcCode + "let rec " + funcName + " " + inputName + " =<br/>";
+		}
+		
+	} else {
+		if(component.type === funcBody) {
+			funcCode = funcCode + "let " + component.name + " " + inputName + " =<br/>";
+		} else if(component.type === funcRec) {
+			funcCode = funcCode + "let rec " + component.name + " " + inputName + " =<br/>";
+		}
+	}
 	tabCount++;
 	var i;
+	var hasTabs = false;
 	for(i = 0; i < tabCount; i++) {
-		funcCode = funcCode + "<tab id=\'" + tabCount + "\'>";
+		funcCode = funcCode + "&emsp;";
+		hasTabs = true;
 	}
 	if(component.output.type === funcBody || component.output.type === funcRec) {
 		var outputIndex = fList.findIndex(func => func.id === component.output.id);
@@ -385,10 +402,63 @@ function genFunc(funcCode, index, tabCount) {
 			return temp;
 		}
 		funcCode = temp;
+		hasTabs = false;
+	}
+	if(!hasTabs) {
+		for(i = 0; i < tabCount; i++) {
+			funcCode = funcCode + "&emsp;";
+			hasTabs = true;
+		}
 	}
 	funcCode = funcCode + inputName + "<br/>";
 	currentVar++;
 	return funcCode;
+}
+
+var popupWindow=null;
+
+function toggleFuncCode() {
+	//alert("You double-clicked element " + this.id);
+	var fList = window.context.state.functionList;
+	var index = fList.findIndex(func2 => func2.id === this.id);
+	var elem = fList[index];
+    var newName = prompt("Name:", elem.name);
+	if(newName === null || newName === elem.name) {
+			alert("The component name remains: " + elem.name);
+	} else if(newName.includes(" ")) {
+		if(elem.type === funcExp || elem.type === funcNExp) {
+			var spaceCount = 0;
+			var onlySpaces = true;
+			var i;
+			for (i = 0; i < newName.length; i++) {
+				if(newName.charAt(i) === ' ') {
+					spaceCount++;
+				} else {
+					onlySpaces = false;
+				}
+			}
+			if(spaceCount > 1 || onlySpaces) {
+				alert("Invalid expression");
+			} else {
+				elem.name = newName;
+				alert("The new name is: " + elem.name);
+			}
+		} else {
+			alert("Invalid function name");
+		}
+	} else {
+		if(newName === "") {
+			elem.name = newName;
+			if(elem.type === funcBody || elem.type === funcRec) {
+				alert("The component is now a lambda function");
+			} else {
+				alert("Component is now unnamed");
+			}
+		} else {
+			elem.name = newName;
+			alert("The new name is: " + elem.name);
+		}
+	}
 }
 
 function allowDrop(ev) {
