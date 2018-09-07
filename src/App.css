@@ -1,6 +1,6 @@
 .App {
   text-align: center;
-  min-width:700px;
+  min-width:1200px;
 }
 
 .App-logo {
@@ -32,7 +32,7 @@
   margin: 9px;
   width: 55%;
   min-width: 25em;
-  height: 30em;
+  height: 480px;
   border: 1px solid;
   border-color: black;
   float: left;
@@ -45,6 +45,19 @@
   /* box-sizing: border-box; */
   /* background-color: #8cffa0; */
   /* padding: 10px; */
+}
+
+.txtArea {
+  margin: 9px;
+  padding: 5px;
+  width: 25%;
+  height: 470px;
+  border: 1px solid;
+  border-color: black;
+  float: left;
+  text-align: left;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .toolbox {

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+//import ReactDOM from 'react-dom';
 import logo from './logo.svg';
 import './App.css';
 
@@ -8,10 +8,13 @@ const interact = require("interactjs");
 const funcBody = 0, 
 	funcExp = 1, 
 	funcNExp = 2, 
-	funcRec = 3;
+	funcRec = 3,
+	varNames = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
 
 var counter = 0;
+var currentVar = 0;
 var copyID = "";
+var toggleFuncCode;
 
 class App extends Component {
   render() {
@@ -19,11 +22,12 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
+          <h1 className="App-title">Visual Functional Programming</h1>
 		  <button id="generateButton">Generate Code</button>
         </header>
 		<Toolbox />
 		<Context ref={(context) => {window.context = context}}/>
+		<Codeblock ref={(codeblock) => {window.codeblock = codeblock}}/>
       </div>
     );
   }
@@ -53,16 +57,15 @@ class Context extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-		  input: props.value,
 		  functionList: [],
-		  completeFuncList: [],
 		};
 	}
 	
+	//Add new diagram component to context state
 	appendData(newType, newID, X, Y) {
 		var functionList = this.state.functionList;
 		
-        const newData = {type: newType, id: newID, x: X, y: Y, needInteract: true};
+        const newData = {type: newType, id: newID, x: X, y: Y, needInteract: true, input: {}, output: {}, full: false, hasParent: false, name: ""};
 		
 		this.setState({
 			functionList: functionList.concat([newData]),
@@ -74,11 +77,14 @@ class Context extends Component {
 		{this.state.functionList.map(func => {
 			if(func.needInteract) {
 				this.newInteract(func.id);
+				var elem = document.getElementById(func.id);
+				elem.addEventListener('dblclick', toggleFuncCode);
 				func.needInteract = false;
 			}
 		})}
 	}
 	
+	//Render context and diagram components
 	render() {
 		var functionList = this.state.functionList;
 		if(functionList.length === 0) {
@@ -102,6 +108,7 @@ class Context extends Component {
 		}
 	}
 	
+	//Handle diagram components dropped in context from toolbox
 	drop(ev) {
 		ev.preventDefault();
 		var data = ev.dataTransfer.getData("text");
@@ -155,14 +162,12 @@ class Context extends Component {
 		}
 	}
 	
+	//Set up draggable diagram component
 	newInteract(id) {
 		// setting initial x & y coordinates to dropped location
 		var index = this.state.functionList.findIndex(x => x.id===id);
 		var element = document.getElementById(id),
 				x = this.state.functionList[index].x, y = this.state.functionList[index].y;
-		
-		var x1;
-		var y2;
 		
 		//setting up element as interact-able		
 		interact(element)
@@ -202,6 +207,31 @@ class Context extends Component {
 	}
 }
 
+class Codeblock extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+		  functionList: [],
+		  code: "",
+		};
+	}
+	
+	render() {
+		return (
+			<div>
+				<div className="txtArea" id="code" dangerouslySetInnerHTML={{__html: this.state.code}}>
+					
+				</div>
+			</div>
+		);
+	}
+}
+
+// {this.state.functionList.map(func => {
+	// return ( <FuncComp key={func.id} type={func.type} id={func.id} x={func.x} y={func.y}/>);
+// })}
+
+//Create HTML element for function component
 function FuncComp(props) {
 	switch(props.type) {
 		case funcBody:
@@ -252,62 +282,183 @@ window.onload = function(){
 	generateBtn.addEventListener("click", event => {
 		var fList = window.context.state.functionList;
 		if(fList.length > 0) {
-			var fullFunc, inComp, outComp, index1, index2, index3;
+			var fullFunc, index1, index2, index3, index4;
 			{fList.map(func => {
 				switch (func.type) {
 					case funcBody:
-						console.log(func.id);
-						fullFunc = true;
-						index1 = fList.findIndex(func2 => func2.x === (func.x-40) && func2.y === (func.y+70));
-						index2 = fList.findIndex(func2 => func2.x === (func.x+100) && func2.y === (func.y+70));
-						index3 = fList.findIndex(func2 => func2.x === (func.x+70) && func2.y === (func.y+70));
-						if(index1 === (-1)) {
-							fullFunc = false;
-						} else {
-							console.log("Input = " + fList[index1].id);
-						}
-						if(index2 === (-1) && index3 === (-1)) {
-							fullFunc = false;
-						} else {
-							if(index2 > 0 && index3 > 0) {
-								fullFunc = false;
-							} else {
-								if(index2 > 0) console.log("Normal output = " + fList[index2].id);
-								if(index3 > 0) console.log("Function output = " + fList[index3].id);
-							}
-						}
-						break;
 					case funcRec:
-						console.log(func.id);
+						//console.log(func.id);
 						fullFunc = true;
+						index1 = fList.findIndex(func2 => func2.x === (func.x) && func2.y === (func.y) && func2.id !== func.id);
+						if(index1>-1) {
+							fullFunc = false;
+							func.input = {};
+							func.output = {};
+							break;
+						}
 						index1 = fList.findIndex(func2 => func2.x === (func.x-40) && func2.y === (func.y+70));
 						index2 = fList.findIndex(func2 => func2.x === (func.x+100) && func2.y === (func.y+70));
 						index3 = fList.findIndex(func2 => func2.x === (func.x+70) && func2.y === (func.y+70));
+						index4 = fList.findIndex(func2 => func2.x === (func.x-70) && func2.y === (func.y-70));
 						if(index1 === (-1)) {
 							fullFunc = false;
+							func.input = {};
+							break;
 						} else {
-							console.log("Input = " + fList[index1].id);
+							func.input = fList[index1];
+							//console.log("Input = " + fList[index1].id);
 						}
 						if(index2 === (-1) && index3 === (-1)) {
 							fullFunc = false;
+							func.output = {};
+							break;
 						} else {
-							if(index2 > 0 && index3 > 0) {
+							if(index2 > -1 && index3 > -1) {
 								fullFunc = false;
+								func.output = {};
+								break;
 							} else {
-								if(index2 > 0) console.log("Normal output = " + fList[index2].id);
-								if(index3 > 0) console.log("Function output = " + fList[index3].id);
+								if(index2 > -1) {
+									func.output = fList[index2];
+									//console.log("Normal output = " + fList[index2].id);
+								}
+								if(index3 > -1) {
+									func.output = fList[index3];
+									//console.log("Function output = " + fList[index3].id);
+								}
 							}
 						}
+						if(index4 > -1) {
+							if(fList[index4].type === funcBody || fList[index4].type === funcRec) {
+								func.hasParent = true;
+							} else func.hasParent = false;
+						} else func.hasParent = false;
 						break;
 					default:
+						fullFunc = false;
 						break;
 				}
+				func.full = fullFunc;
 				fullFunc = true;
 				
-				//console.log(func);
 			})}
+			var newCode = "";
+			var count = 0; 
+			currentVar = 0;
+			{fList.map(func => {
+				if(func.full && !func.hasParent) {
+					var temp = genFunc(newCode, count, 0);
+					if(temp !== "not valid") {
+						newCode = temp;
+					}
+					newCode += "<br/>"
+				}
+				count++;
+			})}
+			window.codeblock.setState({
+				code: newCode,
+			});
 		}
 	});
+}
+
+function genFunc(funcCode, index, tabCount) {
+	//var funcCode = "";
+	var fList = window.context.state.functionList;
+	var component = fList[index];
+	if(!component.full) return "not valid";
+	var inputName;
+	if(component.input.name === "") {
+		inputName = varNames[currentVar];
+	} else inputName = component.input.name;
+	
+	if(component.name === "") {
+		if(component.type === funcBody) {;
+			funcCode = funcCode + "fun " + inputName + " =<br/>";
+		} else if(component.type === funcRec) {
+			var funcName = varNames[++currentVar];
+			funcCode = funcCode + "let rec " + funcName + " " + inputName + " =<br/>";
+		}
+		
+	} else {
+		if(component.type === funcBody) {
+			funcCode = funcCode + "let " + component.name + " " + inputName + " =<br/>";
+		} else if(component.type === funcRec) {
+			funcCode = funcCode + "let rec " + component.name + " " + inputName + " =<br/>";
+		}
+	}
+	tabCount++;
+	var i;
+	var hasTabs = false;
+	for(i = 0; i < tabCount; i++) {
+		funcCode = funcCode + "&emsp;";
+		hasTabs = true;
+	}
+	if(component.output.type === funcBody || component.output.type === funcRec) {
+		var outputIndex = fList.findIndex(func => func.id === component.output.id);
+		currentVar++;
+		var temp = genFunc(funcCode, outputIndex, tabCount);
+		if(temp === "not valid") {
+			return temp;
+		}
+		funcCode = temp;
+		hasTabs = false;
+	}
+	if(!hasTabs) {
+		for(i = 0; i < tabCount; i++) {
+			funcCode = funcCode + "&emsp;";
+			hasTabs = true;
+		}
+	}
+	funcCode = funcCode + inputName + "<br/>";
+	currentVar++;
+	return funcCode;
+}
+
+var popupWindow=null;
+
+function toggleFuncCode() {
+	//alert("You double-clicked element " + this.id);
+	var fList = window.context.state.functionList;
+	var index = fList.findIndex(func2 => func2.id === this.id);
+	var elem = fList[index];
+    var newName = prompt("Name:", elem.name);
+	if(newName === null || newName === elem.name) {
+			alert("The component name remains: " + elem.name);
+	} else if(newName.includes(" ")) {
+		if(elem.type === funcExp || elem.type === funcNExp) {
+			var spaceCount = 0;
+			var onlySpaces = true;
+			var i;
+			for (i = 0; i < newName.length; i++) {
+				if(newName.charAt(i) === ' ') {
+					spaceCount++;
+				} else {
+					onlySpaces = false;
+				}
+			}
+			if(spaceCount > 1 || onlySpaces) {
+				alert("Invalid expression");
+			} else {
+				elem.name = newName;
+				alert("The new name is: " + elem.name);
+			}
+		} else {
+			alert("Invalid function name");
+		}
+	} else {
+		if(newName === "") {
+			elem.name = newName;
+			if(elem.type === funcBody || elem.type === funcRec) {
+				alert("The component is now a lambda function");
+			} else {
+				alert("Component is now unnamed");
+			}
+		} else {
+			elem.name = newName;
+			alert("The new name is: " + elem.name);
+		}
+	}
 }
 
 function allowDrop(ev) {
