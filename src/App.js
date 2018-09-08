@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-//import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom';
 import logo from './logo.svg';
 import './App.css';
 
@@ -9,6 +9,7 @@ const funcBody = 0,
 	funcExp = 1, 
 	funcNExp = 2, 
 	funcRec = 3,
+	funcOp = 4,
 	varNames = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
 
 var counter = 0;
@@ -34,20 +35,13 @@ class App extends Component {
 }
 
 class Toolbox extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-		  input: props.value,
-		};
-	}
-	
 	render() {
 		return (
 			<div className="toolbox" >
 				<img className="fBody" id="funcBody" alt="Test draggable" src="./functionBody.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
 				<img className="rfBody" id="funcRec" alt="Test draggable" src="./recFunctionBody.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
-				<img className="fExp" id="funcExp" alt="Test draggable" src="./expression.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
-				<img className="fExp" id="funcNExp" alt="Test draggable" src="./nameExpression.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
+				<img className="opfBody" id="funcOp" alt="Test draggable" src="./opFunctionBody2.png" draggable="true" onDragStart={(event) => {drag(event)}}/>
+				<img className="fExp" id="funcExp" alt="Test draggable" src="./expression.png" draggable="true" onDragStart={(event) => {drag(event)}}/>				
 			</div>
 		);
 	}
@@ -65,7 +59,7 @@ class Context extends Component {
 	appendData(newType, newID, X, Y) {
 		var functionList = this.state.functionList;
 		
-        const newData = {type: newType, id: newID, x: X, y: Y, needInteract: true, input: {}, output: {}, full: false, hasParent: false, name: ""};
+        const newData = {type: newType, id: newID, x: X, y: Y, needInteract: true, input: {}, input2: {}, output: {}, op: "", full: false, hasParent: false, name: ""};
 		
 		this.setState({
 			functionList: functionList.concat([newData]),
@@ -143,6 +137,14 @@ class Context extends Component {
 					// console.log(x + " " + y);
 					this.appendData(funcRec, copyID, x, y);
 					break;
+				case "funcOp":
+					elem = document.getElementById("funcOp");
+					// console.log(elem.offsetWidth + " " + elem.offsetHeight);
+					x = Math.round((x-elem.offsetWidth/2) / 10) * 10;
+					y = Math.round((y-elem.offsetHeight/2) / 10) * 10;
+					// console.log(x + " " + y);
+					this.appendData(funcOp, copyID, x, y);
+					break;
 				case "funcExp":
 					elem = document.getElementById("funcExp");
 					x = Math.round((x-elem.offsetWidth/2) / 10) * 10;
@@ -200,8 +202,8 @@ class Context extends Component {
 			fList[tempInd].x = x;
 			fList[tempInd].y = y;
 			
-			event.target.style.webkitTransform =
-			event.target.style.transform =
+			event.target.parentNode.style.webkitTransform =
+			event.target.parentNode.style.transform =
 				'translate(' + x + 'px, ' + y + 'px)';
 		  })
 	}
@@ -227,62 +229,128 @@ class Codeblock extends Component {
 	}
 }
 
-// {this.state.functionList.map(func => {
-	// return ( <FuncComp key={func.id} type={func.type} id={func.id} x={func.x} y={func.y}/>);
-// })}
-
 //Create HTML element for function component
 function FuncComp(props) {
+	var nameID = "name" + props.id;
+	var typeID = "type" + props.id;
+	var opID = "op" + props.id;
 	switch(props.type) {
 		case funcBody:
-			return (<img 
-				key={props.id} 
-				className="fBody" 
-				id={props.id} alt="Test draggable" 
-				src="./functionBody.png" 
-				draggable="true" 
-				style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}
-				onDragStart={(event) => {drag(event)}}/>);
+			return (<div 
+						className="compContainer"
+						style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}>
+						<img 
+							key={props.id} 
+							className="fBody" 
+							id={props.id}
+							style={{position:"absolute", top:0, left:0}}
+							draggable="true" 						
+							onDragStart={(event) => {drag(event)}}
+							alt="Test draggable" 
+							src="./functionBody.png" />
+						<div 
+							className="txtComp"
+							id={nameID}
+							style={{position:"absolute", top:0, left:0, transform: 'translate(' + 50 + 'px, ' + 20 + 'px)'}}></div>
+					</div>);
 		case funcRec:
-			return (<img 
-				key={props.id} 
-				className="fBody" 
-				id={props.id} alt="Test draggable" 
-				src="./recFunctionBody.png" 
-				draggable="true" 
-				style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}
-				onDragStart={(event) => {drag(event)}}/>);
+			return (<div 
+						className="compContainer"
+						style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}>
+						<img 
+							key={props.id} 
+							className="fBody" 
+							id={props.id}
+							style={{position:"absolute", top:0, left:0}}
+							draggable="true" 						
+							onDragStart={(event) => {drag(event)}}
+							alt="Test draggable" 
+							src="./recFunctionBody.png" />
+						<div 
+							className="txtComp"
+							id={nameID}
+							style={{position:"absolute", top:0, left:0, transform: 'translate(' + 50 + 'px, ' + 20 + 'px)'}}></div>
+					</div>);
+		case funcOp:
+			return (<div 
+						className="compContainer"
+						style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}>
+						<img 
+							key={props.id} 
+							className="opfBody" 
+							id={props.id}
+							style={{position:"absolute", top:0, left:0}}
+							draggable="true" 						
+							onDragStart={(event) => {drag(event)}}
+							alt="Test draggable" 
+							src="./opFunctionBody2.png" />
+						<div 
+							className="txtComp"
+							id={opID}
+							style={{position:"absolute", top:0, left:0, fontSize:"100%", transform: 'translate(' + 130 + 'px, ' + 90 + 'px)'}}>(?)</div>
+						<div 
+							className="txtComp"
+							id={typeID}
+							style={{position:"absolute", top:0, left:0, transform: 'translate(' + 180 + 'px, ' + 150 + 'px)'}}></div>
+					</div>);
 		case funcExp:
-			return (<img 
-				key={props.id} 
-				className="fExp" 
-				id={props.id} 
-				alt="Test draggable" 
-				src="./expression.png" 
-				draggable="true" 
-				style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}
-				onDragStart={(event) => {drag(event)}}/>);
+			return (<div 
+						className="compContainer"
+						style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}>
+						<img 
+							key={props.id} 
+							className="fExp" 
+							id={props.id}
+							style={{position:"absolute", top:0, left:0}}
+							draggable="true" 						
+							onDragStart={(event) => {drag(event)}}
+							alt="Test draggable" 
+							src="./expression.png" />
+						<div 
+							className="txtComp"
+							id={nameID}
+							style={{position:"absolute", top:0, left:0, transform: 'translate(' + 3 + 'px, ' + 10 + 'px)'}}></div>
+						<div 
+							className="txtComp"
+							id={typeID}
+							style={{position:"absolute", top:0, left:0, transform: 'translate(' + 15 + 'px, ' + 10 + 'px)'}}></div>
+					</div>);
 		case funcNExp:
-			return (<img 
-				key={props.id} 
-				className="fNExp" 
-				id={props.id} alt="Test draggable" 
-				src="./nameExpression.png" 
-				draggable="true" 
-				style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}
-				onDragStart={(event) => {drag(event)}}/>);
+			return (<div 
+						className="compContainer"
+						style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}>
+						<img 
+							key={props.id} 
+							className="fNExp" 
+							id={props.id}
+							style={{position:"absolute", top:0, left:0}}
+							draggable="true" 						
+							onDragStart={(event) => {drag(event)}}
+							alt="Test draggable" 
+							src="./nameExpression.png" />
+						<div 
+							className="txtComp"
+							id={nameID}
+							style={{position:"absolute", top:0, left:0, transform: 'translate(' + 3 + 'px, ' + 10 + 'px)'}}></div>
+						<div 
+							className="txtComp"
+							id={typeID}
+							style={{position:"absolute", top:0, left:0, transform: 'translate(' + 44 + 'px, ' + 10 + 'px)'}}></div>
+					</div>);
 		default:
 			break;
 	}
 	
 }
 
+//Code for "Generate Code" button. 
+//Updates state of functions in the functionList of the context component, and calls genFunc function
 window.onload = function(){
 	const generateBtn = document.getElementById("generateButton");
 	generateBtn.addEventListener("click", event => {
 		var fList = window.context.state.functionList;
 		if(fList.length > 0) {
-			var fullFunc, index1, index2, index3, index4;
+			var fullFunc, index1, index2, index3, index4, elem;
 			{fList.map(func => {
 				switch (func.type) {
 					case funcBody:
@@ -306,6 +374,8 @@ window.onload = function(){
 							break;
 						} else {
 							func.input = fList[index1];
+							elem = document.getElementById("type" + fList[index1].id);
+							elem.innerHTML = "";
 							//console.log("Input = " + fList[index1].id);
 						}
 						if(index2 === (-1) && index3 === (-1)) {
@@ -320,6 +390,8 @@ window.onload = function(){
 							} else {
 								if(index2 > -1) {
 									func.output = fList[index2];
+									elem = document.getElementById("type" + fList[index1].id);
+									elem.innerHTML = "";
 									//console.log("Normal output = " + fList[index2].id);
 								}
 								if(index3 > -1) {
@@ -334,7 +406,43 @@ window.onload = function(){
 							} else func.hasParent = false;
 						} else func.hasParent = false;
 						break;
+					case funcOp:
+						fullFunc = true;
+						index1 = fList.findIndex(func2 => func2.x === (func.x) && func2.y === (func.y) && func2.id !== func.id);
+						if(index1>-1) {
+							fullFunc = false;
+							func.input = {};
+							func.output = {};
+							break;
+						}
+						index1 = fList.findIndex(func2 => func2.x === (func.x-40) && func2.y === (func.y+70));
+						index2 = fList.findIndex(func2 => func2.x === (func.x+30) && func2.y === (func.y+140));
+						//index3 = fList.findIndex(func2 => func2.x === (func.x+70) && func2.y === (func.y+70));
+						index4 = fList.findIndex(func2 => func2.x === (func.x-70) && func2.y === (func.y-70));
+						if(index1 === (-1)) {
+							fullFunc = false;
+							func.input = {};
+							break;
+						} else {
+							func.input = fList[index1];
+							//console.log("Input = " + fList[index1].id);
+						}
+						if(index2 === (-1)) {
+							fullFunc = false;
+							func.input2 = {};
+							break;
+						} else {
+							func.input2 = fList[index2];
+						}
+						if(index4 > -1) {
+							if(fList[index4].type === funcBody || fList[index4].type === funcRec) {
+								func.hasParent = true;
+							} else func.hasParent = false;
+						} else func.hasParent = false;
+						break;
 					default:
+						elem = document.getElementById("type" + func.id);
+						elem.innerHTML = "";
 						fullFunc = false;
 						break;
 				}
@@ -362,22 +470,40 @@ window.onload = function(){
 	});
 }
 
+//Generates code which represents full function expressions modeled in the context
 function genFunc(funcCode, index, tabCount) {
 	//var funcCode = "";
 	var fList = window.context.state.functionList;
 	var component = fList[index];
+	var inp, inp2;
+	
 	if(!component.full) return "not valid";
 	var inputName;
+	var inputName2;
+	var funcType;
 	if(component.input.name === "") {
 		inputName = varNames[currentVar];
 	} else inputName = component.input.name;
-	
+	if(component.type === funcOp) {
+		inp = document.getElementById("type" + component.input.id);
+		inp2 = document.getElementById("type" + component.input2.id);
+		if(component.input2.name === "") {
+			inputName2 = varNames[++currentVar];
+		} else inputName2 = component.input2.name;
+	}	
 	if(component.name === "") {
 		if(component.type === funcBody) {;
 			funcCode = funcCode + "fun " + inputName + " =<br/>";
 		} else if(component.type === funcRec) {
 			var funcName = varNames[++currentVar];
 			funcCode = funcCode + "let rec " + funcName + " " + inputName + " =<br/>";
+		} else if(component.type === funcOp) {
+			if(component.op === "") return "not valid";
+			funcType = document.getElementById("type" + component.id);
+			inp.innerHTML = funcType.innerHTML;
+			inp2.innerHTML = funcType.innerHTML;
+			var funcName = "(" + component.op + ")";
+			funcCode = funcCode + funcName + " " + inputName + " " + inputName2 + "<br/>";
 		}
 		
 	} else {
@@ -385,16 +511,23 @@ function genFunc(funcCode, index, tabCount) {
 			funcCode = funcCode + "let " + component.name + " " + inputName + " =<br/>";
 		} else if(component.type === funcRec) {
 			funcCode = funcCode + "let rec " + component.name + " " + inputName + " =<br/>";
-		}
+		} 
 	}
 	tabCount++;
 	var i;
 	var hasTabs = false;
-	for(i = 0; i < tabCount; i++) {
-		funcCode = funcCode + "&emsp;";
+	if(component.type === funcOp) hasTabs = true;
+	if(!hasTabs) {
+		for(i = 0; i < tabCount; i++) {
+			funcCode = funcCode + "&emsp;";
+		}
 		hasTabs = true;
+	} else if(component.type === funcOp) {
+		for(i = 0; i < tabCount-1; i++) {
+			funcCode = funcCode + "&emsp;";
+		}
 	}
-	if(component.output.type === funcBody || component.output.type === funcRec) {
+	if(component.output.type === funcBody || component.output.type === funcRec || component.output.type === funcOp) {
 		var outputIndex = fList.findIndex(func => func.id === component.output.id);
 		currentVar++;
 		var temp = genFunc(funcCode, outputIndex, tabCount);
@@ -402,7 +535,7 @@ function genFunc(funcCode, index, tabCount) {
 			return temp;
 		}
 		funcCode = temp;
-		hasTabs = false;
+		if(component.output.type === funcBody || component.output.type === funcRec) hasTabs = false;
 	}
 	if(!hasTabs) {
 		for(i = 0; i < tabCount; i++) {
@@ -410,57 +543,147 @@ function genFunc(funcCode, index, tabCount) {
 			hasTabs = true;
 		}
 	}
-	funcCode = funcCode + inputName + "<br/>";
+	if(component.type === funcBody || component.type === funcRec) funcCode = funcCode + inputName + "<br/>";
 	currentVar++;
 	return funcCode;
 }
 
-var popupWindow=null;
-
+//prompt user to edit the name of a diagram component
 function toggleFuncCode() {
-	//alert("You double-clicked element " + this.id);
 	var fList = window.context.state.functionList;
 	var index = fList.findIndex(func2 => func2.id === this.id);
 	var elem = fList[index];
-    var newName = prompt("Name:", elem.name);
-	if(newName === null || newName === elem.name) {
-			alert("The component name remains: " + elem.name);
-	} else if(newName.includes(" ")) {
-		if(elem.type === funcExp || elem.type === funcNExp) {
-			var spaceCount = 0;
-			var onlySpaces = true;
-			var i;
-			for (i = 0; i < newName.length; i++) {
-				if(newName.charAt(i) === ' ') {
-					spaceCount++;
+	var elemTxt;
+	var elemType;
+	if(elem.type === funcOp) {
+		elemTxt = document.getElementById("op" + this.id);
+		elemType = document.getElementById("type" + this.id);
+		var newOperator = prompt("Operator:", elem.op);
+		if(newOperator === null || newOperator === elem.op) {
+			if(newOperator === "") {
+				elemTxt.innerHTML = "(?)";
+				elemTxt.style.fontSize = "100%";
+				alert("The component operator is unset");
+			} else if(newOperator === elem.op){
+				alert("The component operator remains unchanged");
+			} 
+		} else if(newOperator.length > 1 || newOperator.includes(" ")) {
+			alert("Invalid operator!\nMust be only one of the following:\n\"+\", \"-\", \"*\", \"\/\"");
+		} else {
+			switch(newOperator) {
+				case "+":
+					elemTxt.innerHTML = "(" + newOperator + ")";
+					elemType.innerHTML = "int";
+					elem.op = newOperator;
+					elemTxt.style.fontSize = "100%";
+					alert("The component operator is " + newOperator);
+					break;
+				case "-":
+					elemTxt.innerHTML = "(" + newOperator + ")";
+					elemType.innerHTML = "int";
+					elem.op = newOperator;
+					elemTxt.style.fontSize = "100%";
+					alert("The component operator is " + newOperator);
+					break;
+				case "*":
+					elemTxt.innerHTML = "(" + newOperator + ")";
+					elemType.innerHTML = "decimal";
+					elem.op = newOperator;
+					elemTxt.style.fontSize = "100%";
+					alert("The component operator is " + newOperator);
+					break;
+				case "\/":
+					elemTxt.innerHTML = "(" + newOperator + ")";
+					elemType.innerHTML = "decimal";
+					elem.op = newOperator;
+					elemTxt.style.fontSize = "100%";
+					alert("The component operator is " + newOperator);
+					break;
+				case "":
+					elemTxt.innerHTML = "(?)";
+					elemType.innerHTML = "";
+					elem.op = newOperator;
+					elemTxt.style.fontSize = "100%";
+					alert("The component operator is unset");
+					break;
+				default:
+					alert("Invalid operator!\nMust be only one of the following:\n\"+\", \"-\", \"*\", \"\\\"");
+			}
+		}
+	}else {
+		elemTxt = document.getElementById("name" + this.id);
+		var newName = prompt("Name:", elem.name);
+		if(newName === null || newName === elem.name) {
+			if(newName === "") {
+				elemTxt.innerHTML = newName;
+				elemTxt.style.fontSize = "100%";
+				if(elem.type === funcBody || elem.type === funcRec) {
+					alert("The component is now a lambda function");
 				} else {
-					onlySpaces = false;
+					alert("Component remains unnamed");
+				}
+			} else if(newName === elem.name){	
+				alert("The component name remains: " + elem.name);
+			}
+		} else if(newName.includes(" ")) {
+			if(elem.type === funcExp || elem.type === funcNExp) {
+				var spaceCount = 0;
+				var onlySpaces = true;
+				var i;
+				for (i = 0; i < newName.length; i++) {
+					if(newName.charAt(i) === ' ') {
+						spaceCount++;
+					} else {
+						onlySpaces = false;
+					}
+				}
+				if(spaceCount > 1 || onlySpaces) {
+					alert("Invalid expression");
+				} else {
+					if(newName.length < 7) {
+						if(elem.type === funcExp) elem.type = funcNExp;
+						elem.name = newName;
+						elemTxt.innerHTML = newName;
+						elemTxt.style.fontSize = "100%"
+						if(newName.length > 4) elemTxt.style.fontSize = "70%";
+						if(newName.length > 6) elemTxt.style.fontSize = "60%";
+						alert("The new name is: " + elem.name);
+					} else alert("Name too long");
+				}
+			} else {
+				alert("Invalid function name");
+			}
+		} else {
+			if(newName === "") {
+				if(elem.type === funcNExp) elem.type = funcExp;
+				elem.name = newName;
+				elemTxt.innerHTML = newName;
+				elemTxt.style.fontSize = "100%";
+				if(elem.type === funcBody || elem.type === funcRec) {
+					alert("The component is now a lambda function");
+				} else {
+					alert("Component is now unnamed");
+				}
+			} else {
+				if(newName.length > 7) {
+					alert("Name too long");
+				} else {					
+					if(elem.type === funcExp) {
+						elemTxt.style.fontSize = "80%"
+						elem.type = funcNExp;
+					} else elemTxt.style.fontSize = "100%"
+					elem.name = newName;
+					elemTxt.innerHTML = newName;
+					if(newName.length > 6) elemTxt.style.fontSize = "70%";
+					alert("The new name is: " + elem.name);
 				}
 			}
-			if(spaceCount > 1 || onlySpaces) {
-				alert("Invalid expression");
-			} else {
-				elem.name = newName;
-				alert("The new name is: " + elem.name);
-			}
-		} else {
-			alert("Invalid function name");
-		}
-	} else {
-		if(newName === "") {
-			elem.name = newName;
-			if(elem.type === funcBody || elem.type === funcRec) {
-				alert("The component is now a lambda function");
-			} else {
-				alert("Component is now unnamed");
-			}
-		} else {
-			elem.name = newName;
-			alert("The new name is: " + elem.name);
 		}
 	}
+	window.context.forceUpdate();
 }
 
+//used to allow dropping draggable elements into drop-zones
 function allowDrop(ev) {
     ev.preventDefault();
 }
