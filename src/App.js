@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+// import ReactDOM from 'react-dom';
 import logo from './logo.svg';
 import './App.css';
 
@@ -17,7 +17,7 @@ const funcBody = 0,
 var counter = 0;
 var currentVar = 0;
 var copyID = "";
-var toggleFuncCode;
+var rightClick, childIsOp;
 
 
 class App extends Component {
@@ -50,7 +50,6 @@ class Toolbox extends Component {
 	}
 }
 
-var rightClick;
 
 class Context extends Component {
 	constructor(props) {
@@ -64,7 +63,7 @@ class Context extends Component {
 	appendData(newType, newID, X, Y) {
 		var functionList = this.state.functionList;
 		var Op = "", vT = "";
-		if(newType === funcOp) Op = "+", vT = "int";
+		if(newType === funcOp) { Op = "+"; vT = "int"; }
         const newData = {type: newType, id: newID, x: X, y: Y, needInteract: true, input: {}, input2: {}, output: {}, op: Op, full: false, hasParent: false, name: "", valueType: vT};
 		
 		this.setState({
@@ -86,7 +85,7 @@ class Context extends Component {
 						case "y":
 						case "Y":
 							window.context.setState(prevState => ({
-								functionList: prevState.functionList.filter(el => el.id != this.id )
+								functionList: prevState.functionList.filter(el => el.id !== this.id )
 							}));
 							alert("Component " + this.id + " successfully removed");
 							break;
@@ -298,7 +297,6 @@ function FuncComp(props) {
 							dangerouslySetInnerHTML={{__html: props.name}}></div>
 					</div>);
 		case funcOp:
-			var testText = "Hallelujah";
 			return (<div 
 						className="compContainer"
 						style={{position:"absolute", top:0, left:0, transform: 'translate(' + props.x + 'px, ' + props.y + 'px)'}}>
@@ -388,7 +386,7 @@ window.onload = function(){
 	generateBtn.addEventListener("click", event => {
 		var fList = window.context.state.functionList;
 		if(fList.length > 0) {
-			var fullFunc, index1, index2, index3, index4, elem;
+			var fullFunc, index1, index2, index3, index4;// elem;
 			{fList.map(func => {
 				switch (func.type) {
 					case funcBody:
@@ -413,7 +411,7 @@ window.onload = function(){
 						} else {
 							fList[index1].hasParent = true;
 							func.input = fList[index1];
-							elem = document.getElementById("type" + fList[index1].id);
+							// elem = document.getElementById("type" + fList[index1].id);
 							// elem.innerHTML = "";
 							func.valueType = "";
 							//console.log("Input = " + fList[index1].id);
@@ -431,7 +429,7 @@ window.onload = function(){
 								if(index2 > -1) {
 									fList[index2].hasParent = true;
 									func.output = fList[index2];
-									elem = document.getElementById("type" + fList[index1].id);
+									// elem = document.getElementById("type" + fList[index1].id);
 									// elem.innerHTML = "";
 									func.valueType = "";
 									//console.log("Normal output = " + fList[index2].id);
@@ -485,18 +483,18 @@ window.onload = function(){
 						} else func.hasParent = false;
 						break;
 					default:
-						elem = document.getElementById("type" + func.id);
-						index1 = fList.findIndex(func2 => func2.x === (func.x+40) && func2.y === (func.y-70));
-						index2 = fList.findIndex(func2 => func2.x === (func.x-30) && func2.y === (func.y-140));
-						var checkParent = false;
-						if(index1 !== (-1)) {
-							checkParent = true;
-							break;
-						}
-						if(index2 !== (-1)) {
-							if(fList[index2].type === funcOp) checkParent = true;
-							break;
-						}
+						//elem = document.getElementById("type" + func.id);
+						// index1 = fList.findIndex(func2 => func2.x === (func.x+40) && func2.y === (func.y-70));
+						// index2 = fList.findIndex(func2 => func2.x === (func.x-30) && func2.y === (func.y-140));
+						// var checkParent = false;
+						// if(index1 !== (-1)) {
+							// checkParent = true;
+							// break;
+						// }
+						// if(index2 !== (-1)) {
+							// if(fList[index2].type === funcOp) checkParent = true;
+							// break;
+						// }
 						// elem.innerHTML = "";
 						func.valueType = "";
 						
@@ -538,19 +536,18 @@ function genFunc(funcCode, index, tabCount) {
 		if(!component.hasParent && component.name.includes("=")) funcCode = funcCode + "let " + component.name + "<br/>"; else funcCode = funcCode + component.name + "<br/>";
 		return funcCode;
 	}
-	var inp, inp2;
+	// var inp, inp2;
 	if(!component.full) return "not valid";
-	var inputName;
-	var inputName2;
-	var funcType;
+	var inputName, inputName2, funcOpName;
+	// var funcType;
 	var hasChild = false;
-	var childIsOp = false;
+	childIsOp = false;
 	if(component.input.name === "") {
 		inputName = varNames[currentVar];
 	} else inputName = component.input.name;
 	if(component.type === funcOp) {
-		inp = document.getElementById("type" + component.input.id);
-		inp2 = document.getElementById("type" + component.input2.id);
+		// inp = document.getElementById("type" + component.input.id);
+		// inp2 = document.getElementById("type" + component.input2.id);
 		if(component.input2.name === "") {
 			inputName2 = varNames[++currentVar];
 		} else inputName2 = component.input2.name;
@@ -564,10 +561,10 @@ function genFunc(funcCode, index, tabCount) {
 			funcCode = funcCode + "let rec " + funcName + " " + inputName + " =<br/>";
 		} else if(component.type === funcOp) {
 			if(component.op === "") return "not valid";
-			funcType = document.getElementById("type" + component.id);
+			// funcType = document.getElementById("type" + component.id);
 			component.input.valueType = component.valueType;
 			component.input2.valueType = component.valueType;
-			var funcOpName = "(" + component.op + ")";
+			funcOpName = "(" + component.op + ")";
 			funcCode = funcCode + funcOpName + " " + inputName + " " + inputName2 + "<br/>";
 		}
 	} else {
@@ -577,10 +574,10 @@ function genFunc(funcCode, index, tabCount) {
 			funcCode = funcCode + "let rec " + component.name + " " + inputName + " =<br/>";
 		} else if(component.type === funcOp) {
 			if(component.op === "") return "not valid";
-			funcType = document.getElementById("type" + component.id);
+			// funcType = document.getElementById("type" + component.id);
 			component.input.valueType = component.valueType;
 			component.input2.valueType = component.valueType;
-			var funcOpName = "(" + component.op + ")";
+			funcOpName = "(" + component.op + ")";
 			funcCode = funcCode + "let " + component.name + " = " + funcOpName + " " + inputName + " " + inputName2 + "<br/>";
 		}
 	}
@@ -611,9 +608,9 @@ function genFunc(funcCode, index, tabCount) {
 		if(component.output.type === funcBody || component.output.type === funcRec) hasTabs = false;
 		if(component.output.name !== "") hasChild = true;
 		if(component.output.type === funcOp) {
-			if(component.input.name !== "" && (component.output.input.name === component.input.name || component.output.input2.name === component.input.name)) childIsOp = true;
+			/*if(component.input.name !== "" && (component.output.input.name === component.input.name || component.output.input2.name === component.input.name))*/ childIsOp = true;
 			component.input.valueType = component.output.valueType;
-		}
+		} else component.input.valueType = component.output.input.valueType;
 	}
 	
 	if(!hasTabs) {
@@ -624,7 +621,7 @@ function genFunc(funcCode, index, tabCount) {
 	}
 	
 	if(childIsOp) {
-		if(component.output.name === "") funcCode = funcCode + "<br/>"; else funcCode = funcCode + component.output.name + "<br/>";
+		if(component.output.name === "" || component.output.output.type === funcOp) funcCode = funcCode + "<br/>"; else funcCode = funcCode + component.output.name + "<br/>";
 	} else if(hasChild) {
 		if(component.output.type === funcOp && component.output.name !== "") {
 			funcCode = funcCode + inputName + "<br/>";
@@ -642,10 +639,9 @@ function toggleFuncCode() {
 	var index = fList.findIndex(func2 => func2.id === this.id);
 	var elem = fList[index];
 	var elemTxt;
-	var elemType;
 	if(elem.type === funcOp) {
 		elemTxt = document.getElementById("op" + this.id);
-		elemType = document.getElementById("type" + this.id);
+		// elemType = document.getElementById("type" + this.id);
 		var newOperator = prompt("Operator:", elem.op);
 		if(newOperator === null || newOperator === elem.op) {
 			if(newOperator === "") {
@@ -733,7 +729,7 @@ function toggleFuncCode() {
 					onlySpaces = false;
 				}
 			}
-			if(spaceCount > 3 || onlySpaces) {
+			if(onlySpaces) {
 				alert("Invalid expression");
 			} else {
 				if(newName.length < 20) {
@@ -798,137 +794,4 @@ function drag(ev) {
 
 
 export default App;
-
-// class functionComponent extends Component {
-	
-	// constructor(props) {
-		// super(props);
-		// this.state = {
-		  // type: null,
-		  // id: null,
-		  
-		// };
-	// }
-	
-	// render() {
-		// return (<div></div>)
-	// }
-	
-// }
-
-// function Square(props) {
-	// return (
-		// <button className="square" onClick={props.onClick}>
-		  // {props.value}
-		// </button>
-	// );
-// }
-
-// function drop(ev) {
-    // ev.preventDefault();
-    // var data = ev.dataTransfer.getData("text");
-	// if(data.includes("Img")) {
-		// data = document.getElementById(data).parentNode.id;
-	// }
-	// if(data.includes("func"))
-	// {
-		// var nodeCopy = document.getElementById(data).cloneNode(true);
-		// var copyID = "drag" + counter;
-		// nodeCopy.id = copyID;
-		// if(nodeCopy.hasChildNodes()) nodeCopy.childNodes[1].id = "dragImg" + counter;
-		// counter++;
-		// ev.target.appendChild(nodeCopy);
-	// } else {
-		
-		// ev.target.appendChild(document.getElementById(data));
-	// }
-	// var element = document.getElementById(copyID),
-		// x = 0, y = 0;
-	
-	// interact(element)
-	  // .draggable({
-		// snap: {
-		  // targets: [
-			// interact.createSnapGrid({ x: 2, y: 2 })
-		  // ],
-		  // range: Infinity,
-		  // relativePoints: [ { x: 0, y: 0 } ]
-		// },
-		// inertia: true,
-		// restrict: {
-		  // restriction: element.parentNode,
-		  // elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
-		  // endOnly: true
-		// }
-	  // })
-	  // .on('dragmove', function (event) {
-		// x += event.dx;
-		// y += event.dy;
-
-		// event.target.style.webkitTransform =
-		// event.target.style.transform =
-			// 'translate(' + x + 'px, ' + y + 'px)';
-	  // })
-// }
-
-// class Employee extends React.Component {
-   // state = {
-      // employeeList: [{name: 'user-1', age: '22', company:'abc', url: "https://avatars.githubusercontent.com/u/k8297" }]
-   // }
-   // appendData = () => {
-        // const newData = {name: 's', age: '21', company:'xyz', url: "https://avatars.githubusercontent.com/u/k8297"}
-        // this.setState(prevState => ({employeeList: [...prevState.employeeList, newData]}))
-   // }
-   // render() {
-       // <div>
-           // {this.state.employeeList.map(employee => {
-                // return (
-                    // <Card key={employee.name} name={employee.name} company={employee.company} url={employee.url}/>
-                // )
-           // })}
-           // <button onClick={this.appendData}>Append</button>
-       // </div>
-   // }
-// }
-
-// class Board extends Component {
-	// constructor(props) {
-		// super(props);
-		// this.state = {
-		  // input: props.value,
-		  // squares: Array(48).fill(null),
-		// };
-	// }
-	
-	// render() {
-		// return (
-			// <div>
-				// <div className="board-row">
-				  // {this.renderSquare(0)}
-				  // {this.renderSquare(1)}
-				  // {this.renderSquare(2)}
-				// </div>
-				// <div className="board-row">
-				  // {this.renderSquare(3)}
-				  // {this.renderSquare(4)}
-				  // {this.renderSquare(5)}
-				// </div>
-				// <div className="board-row">
-				  // {this.renderSquare(6)}
-				  // {this.renderSquare(7)}
-				  // {this.renderSquare(8)}
-				// </div>
-			// </div>
-		// );
-	// }
-	
-	// renderSquare(i) {
-		// return (
-		  // <Square
-			// value={this.state.squares[i]}
-			// onClick={() => this.handleClick(i)}
-		  // />
-		// );
-	// }
-// }
 
